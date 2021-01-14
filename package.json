@@ -1,0 +1,22 @@
+{
+  "name": "com.sk.utilities",
+  "version": "1.0.0",
+  "displayName": "SK.Utilities",
+  "description": "Various C# extensions and utilities",
+  "unity": "2020.2",
+  "keywords": [
+    "cs",
+    "csharp",
+    "library",
+    "tools",
+    "extensions",
+    "utilities",
+    "utils"
+  ],
+  "author": {
+    "name": "Skurdt",
+    "email": "skurdt@gmail.com",
+    "url": "https://github.com/Skurdt"
+  },
+  "type": "library"
+}
