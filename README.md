@@ -1,2 +1,2 @@
-# SK.Utilities
-Unity package for various C# extensions and utilities
+# Unity package: SK.Utilities
+Various C# extensions and utilities
