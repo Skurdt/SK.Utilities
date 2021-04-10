@@ -21,6 +21,7 @@
  * SOFTWARE. */
 
 using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -30,11 +31,10 @@ namespace SK.Utilities
     {
         public static bool Serialize<T>(string filePath, T value) where T : class
         {
-            if (value == null)
+            if (string.IsNullOrEmpty(filePath) || value == null)
                 return false;
 
-            filePath = Path.GetFullPath(filePath);
-
+            filePath         = Path.GetFullPath(filePath);
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 _ = Directory.CreateDirectory(directory);
@@ -48,26 +48,41 @@ namespace SK.Utilities
             using XmlWriter writer             = XmlWriter.Create(stream, settings);
             XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
             XmlSerializer serializer           = new XmlSerializer(typeof(T));
-
             serializer.Serialize(writer, value, namespaces);
-            File.WriteAllText(filePath, stream.ToString());
 
+            File.WriteAllText(filePath, stream.ToString());
             return true;
         }
 
         public static T Deserialize<T>(string filePath) where T : class
         {
+            if (string.IsNullOrEmpty(filePath))
+                return null;
+
             filePath = Path.GetFullPath(filePath);
             if (!File.Exists(filePath))
                 return null;
 
-            string text = File.ReadAllText(filePath);
-            if (string.IsNullOrEmpty(text))
+            using FileStream stream  = new FileStream(filePath, FileMode.Open);
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            return serializer.Deserialize(stream) as T;
+        }
+
+        public static async Task<T> DeserializeAsync<T>(string filePath) where T : class
+        {
+            if (string.IsNullOrEmpty(filePath))
                 return null;
 
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using StringReader reader = new StringReader(text);
-            return serializer.Deserialize(reader) as T;
+            filePath = Path.GetFullPath(filePath);
+            if (!File.Exists(filePath))
+                return null;
+
+            return await Task.Run(() =>
+            {
+                using FileStream stream  = new FileStream(filePath, FileMode.Open);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                return serializer.Deserialize(stream) as T;
+            });
         }
     }
 }
