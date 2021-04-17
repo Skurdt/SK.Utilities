@@ -26,6 +26,8 @@ namespace SK.Utilities.StateMachine
 {
     public abstract class Context<T> where T : State<T>
     {
+        public T CurrentState => _currentState;
+
         private readonly List<T> _states = new List<T>();
 
         private T _currentState  = null;
