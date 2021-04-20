@@ -26,8 +26,6 @@ namespace SK.Utilities.StateMachine
 {
     public abstract class Context<T> where T : State<T>
     {
-        public T CurrentState => _currentState;
-
         private readonly List<T> _states = new List<T>();
 
         private T _currentState  = null;
@@ -70,7 +68,7 @@ namespace SK.Utilities.StateMachine
             if (_previousState == null)
                 return;
 
-            _previousState.OnExit();
+            _currentState.OnExit();
             Algorithms.Swap(ref _currentState, ref _previousState);
             _currentState.OnEnter();
         }
