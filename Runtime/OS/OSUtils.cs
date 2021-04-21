@@ -55,7 +55,6 @@ namespace SK.Utilities
         public delegate void ProcessStartedDelegate(ProcessStartedData processStartedData);
         public delegate void ProcessExitedDelegate(ProcessExitedData processExitedData);
 
-
         public sealed class ProcessLauncher
         {
             private readonly List<int> _persistentProcesses = new List<int>();
@@ -72,7 +71,7 @@ namespace SK.Utilities
                 _errorLogger   = errorLogger;
             }
 
-            public void StartProcess(ProcessCommand command, bool persistent, ProcessStartedDelegate processStartedDelegate, ProcessExitedDelegate processExitedDelegate)
+            public bool StartProcess(ProcessCommand command, bool persistent, ProcessStartedDelegate processStartedDelegate, ProcessExitedDelegate processExitedDelegate)
             {
                 StopCurrentProcess();
 
@@ -105,38 +104,41 @@ namespace SK.Utilities
 
                     process.Exited += delegate
                     {
-                        if (process != null)
-                        {
-                            processExitedDelegate?.Invoke(new ProcessExitedData
-                            {
-                                StartTime = process.StartTime,
-                                ExitTime  = process.ExitTime,
-                                ExitCode  = process.ExitCode
-                            });
+                        if (process == null)
+                            return;
 
-                            process.Dispose();
-                        }
+                        processExitedDelegate?.Invoke(new ProcessExitedData
+                        {
+                            StartTime = process.StartTime,
+                            ExitTime  = process.ExitTime,
+                            ExitCode  = process.ExitCode
+                        });
+
+                        process.Dispose();
                     };
 
-                    if (process.Start())
+                    if (!process.Start())
+                        return false;
+
+                    if (persistent)
+                        _persistentProcesses.Add(process.Id);
+                    else
+                        _currentProcessId = process.Id;
+
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    processStartedDelegate?.Invoke(new ProcessStartedData
                     {
-                        if (persistent)
-                            _persistentProcesses.Add(process.Id);
-                        else
-                            _currentProcessId = process.Id;
+                        StartTime = process.StartTime
+                    });
 
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
-
-                        processStartedDelegate?.Invoke(new ProcessStartedData
-                        {
-                            StartTime = process.StartTime
-                        });
-                    }
+                    return true;
                 }
                 catch (Exception e)
                 {
                     _errorLogger?.Invoke($"[OSUtils.ProcessLauncher.StartProcess] {e.Message}");
+                    return false;
                 }
             }
 
@@ -154,29 +156,30 @@ namespace SK.Utilities
 
             private void StopProcess(int id)
             {
-                if (id > -1)
+                if (id < 0)
+                    return;
+
+                try
                 {
-                    try
+                    Process process = Process.GetProcessById(id);
+                    if (process == null)
                     {
-                        Process process = Process.GetProcessById(id);
-                        if (process != null)
-                        {
-                            if (!process.HasExited)
-                            {
-                                _ = process.CloseMainWindow();
-                                process.Close();
-                            }
-                        }
-                        else
-                            _warningLogger?.Invoke("[OSUtils.ProcessLauncher.StopProcess] Process is null.");
+                        _warningLogger?.Invoke("[OSUtils.ProcessLauncher.StopProcess] Process is null.");
+                        return;
                     }
-                    catch (Exception)
+
+                    if (!process.HasExited)
                     {
+                        _ = process.CloseMainWindow();
+                        process.Close();
                     }
-                    finally
-                    {
-                        _currentProcessId = -1;
-                    }
+                }
+                catch (Exception)
+                {
+                }
+                finally
+                {
+                    _currentProcessId = -1;
                 }
             }
 
