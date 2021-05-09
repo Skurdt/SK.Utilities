@@ -24,43 +24,45 @@ using System.Collections.Generic;
 
 namespace SK.Utilities.StateMachine
 {
-    public abstract class Context<T> where T : State<T>
+    public abstract class Context<T>
+        where T : class, IState<T>
     {
         private readonly List<T> _states = new List<T>();
 
         private T _currentState  = null;
         private T _previousState = null;
 
-        public void Start() => OnStart();
+        public void Start() => OnContextStart();
 
-        public void Update(float dt)
+        public void OnUpdate(float dt)
         {
-            OnUpdate(dt);
+            OnContextUpdate(dt);
             _currentState?.OnUpdate(dt);
         }
 
-        public void FixedUpdate(float dt)
+        public void OnFixedUpdate(float dt)
         {
-            OnFixedUpdate(dt);
+            OnContextFixedUpdate(dt);
             _currentState?.OnFixedUpdate(dt);
         }
 
-        public void TransitionTo<U>() where U : T
+        public void TransitionTo<U>()
+            where U : T, new()
         {
-            T foundState = _states.Find(x => x.GetType() == typeof(U));
-            if (foundState != null)
+            T targetState = _states.Find(x => x is U);
+            if (targetState != null)
             {
                 _currentState?.OnExit();
                 _previousState = _currentState;
-                _currentState = foundState;
+                _currentState  = targetState;
                 _currentState.OnEnter();
+                return;
             }
-            else
-            {
-                U newState = System.Activator.CreateInstance(typeof(U), this) as U;
-                _states.Add(newState);
-                TransitionTo<U>();
-            }
+
+            U newState = new U();
+            newState.Initialize(this);
+            _states.Add(newState);
+            TransitionTo<U>();
         }
 
         public void TransitionToPrevious()
@@ -73,15 +75,15 @@ namespace SK.Utilities.StateMachine
             _currentState.OnEnter();
         }
 
-        protected virtual void OnStart()
+        protected virtual void OnContextStart()
         {
         }
 
-        protected virtual void OnUpdate(float dt)
+        protected virtual void OnContextUpdate(float dt)
         {
         }
 
-        protected virtual void OnFixedUpdate(float dt)
+        protected virtual void OnContextFixedUpdate(float dt)
         {
         }
     }

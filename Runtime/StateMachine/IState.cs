@@ -1,4 +1,4 @@
-/* MIT License
+﻿/* MIT License
 
  * Copyright (c) 2020 Skurdt
  *
@@ -22,28 +22,13 @@
 
 namespace SK.Utilities.StateMachine
 {
-    public abstract class State<TContext, TState> : IState<TState>
-        where TContext : Context<TState>
-        where TState : class, IState<TState>
+    public interface IState<T>
+        where T : class, IState<T>
     {
-        protected TContext Context { get; private set; }
-
-        public void Initialize(Context<TState> context) => Context = context as TContext;
-
-        public virtual void OnEnter()
-        {
-        }
-
-        public virtual void OnExit()
-        {
-        }
-
-        public virtual void OnUpdate(float dt)
-        {
-        }
-
-        public virtual void OnFixedUpdate(float dt)
-        {
-        }
+        void Initialize(Context<T> context);
+        void OnEnter();
+        void OnExit();
+        void OnUpdate(float dt);
+        void OnFixedUpdate(float dt);
     }
 }
