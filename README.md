@@ -55,9 +55,8 @@ public abstract class State<T>;
 ```
 A generic state machine.</br>
 - User must implement a non-generic and non-abstract class that derives from Context\<T> and a non-generic and abstract class that derives from State\<T>.
-- The derived context can inject any external dependencies through a constructor.
-- All operations inside the states can only be done through the context, as such, the derived abstract state and all concrete states should add the concrete context as a protected member, assigned via a constructor.
-- States are not created using "new" from the caller side. They are created by the context using [System.Activator.CreateInstance](https://docs.microsoft.com/en-us/dotnet/api/system.activator.createinstance?view=netstandard-2.0) when calling "TransitionTo" and are cached internally.
+- All operations inside the states can only be done through the context.
+- States are not created using "new" from the caller side. They are created by the context when calling "TransitionTo" and are cached internally.
 
 **Example usage:**
 ```cs
@@ -68,23 +67,15 @@ public sealed class PlayerContext : SK.Utilities.StateMachine.Context<PlayerStat
     public void SayGoodbye() => Console.WriteLine("Goodbye!");
 }
 
-public abstract class PlayerState : SK.Utilities.StateMachine.State<PlayerState>
+public abstract class PlayerState : SK.Utilities.StateMachine.State<PlayerContext, PlayerState>
 {
-    protected PlayerContext _context;
-
-    public PlayerState(PlayerContext context) => _context = context;
 }
 
 public sealed class PlayerIdleState : PlayerState
 {
-    public PlayerIdleState(PlayerContext context)
-    : base(context)
-    {
-    }
-  
-    public override void OnEnter() => _context.SayHello();
+    public override void OnEnter() => Context.SayHello();
 
-    public override void OnExit() => _context.SayGoodbye();
+    public override void OnExit() => Context.SayGoodbye();
 }
 
 public static void Main()
