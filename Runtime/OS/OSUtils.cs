@@ -1,4 +1,4 @@
-﻿/* MIT License
+/* MIT License
 
  * Copyright (c) 2020 Skurdt
  *
@@ -80,7 +80,7 @@ namespace SK.Utilities
                     string programPath             = Path.GetFullPath(command.Path);
                     string programWorkingDirectory = !string.IsNullOrEmpty(command.WorkingDirectory) ? command.WorkingDirectory : Path.GetDirectoryName(programPath);
                     string extension               = !string.IsNullOrEmpty(command.Extension) ? $".{command.Extension}" : string.Empty;
-                    string arguments               = $"{command.CommandLine} {command.CommandId}{extension}";
+                    string arguments               = !string.IsNullOrEmpty(command.CommandId) ? $"{command.CommandLine} {command.CommandId}{extension}" : command.CommandLine;
 
                     Process process = new Process
                     {
@@ -183,14 +183,12 @@ namespace SK.Utilities
                 }
             }
 
-            // TODO: Write to file alternative
             private void ProcessOutputDataReceivedEventHandler(object sender, DataReceivedEventArgs eventArgs)
             {
                 if (!string.IsNullOrEmpty(eventArgs.Data))
                     _logger?.Invoke($"[STDOUT] {eventArgs.Data}");
             }
 
-            // TODO: Write to file alternative
             private void ProcessErrorDataReceivedEventHandler(object sender, DataReceivedEventArgs eventArgs)
             {
                 if (!string.IsNullOrEmpty(eventArgs.Data))
