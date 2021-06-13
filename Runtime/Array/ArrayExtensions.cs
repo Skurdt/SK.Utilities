@@ -26,7 +26,7 @@ namespace Arcade
     {
         public static void RotateLeft<T>(this T[] arr, int count)
         {
-            if (arr == null || arr.Length < 1)
+            if (arr is null || arr.Length < 1)
                 return;
 
             for (int i = 0; i < count; ++i)
@@ -40,7 +40,7 @@ namespace Arcade
 
         public static void RotateRight<T>(this T[] arr, int count)
         {
-            if (arr == null || arr.Length < 1)
+            if (arr is null || arr.Length < 1)
                 return;
 
             for (int i = 0; i < count; ++i)

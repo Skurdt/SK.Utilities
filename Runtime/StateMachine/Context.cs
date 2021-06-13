@@ -50,19 +50,19 @@ namespace SK.Utilities.StateMachine
             where U : T, new()
         {
             T targetState = _states.Find(x => x is U);
-            if (targetState != null)
+            if (targetState is null)
             {
-                _currentState?.OnExit();
-                _previousState = _currentState;
-                _currentState  = targetState;
-                _currentState.OnEnter();
+                U newState = new U();
+                newState.Initialize(this);
+                _states.Add(newState);
+                TransitionTo<U>();
                 return;
             }
 
-            U newState = new U();
-            newState.Initialize(this);
-            _states.Add(newState);
-            TransitionTo<U>();
+            _currentState?.OnExit();
+            _previousState = _currentState;
+            _currentState  = targetState;
+            _currentState.OnEnter();
         }
 
         public void TransitionToPrevious()

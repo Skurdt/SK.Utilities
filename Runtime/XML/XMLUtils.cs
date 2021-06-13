@@ -74,15 +74,14 @@ namespace SK.Utilities
                 return null;
 
             filePath = Path.GetFullPath(filePath);
-            if (!File.Exists(filePath))
-                return null;
-
-            return await Task.Run(() =>
-            {
-                using FileStream stream  = new FileStream(filePath, FileMode.Open);
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
-                return serializer.Deserialize(stream) as T;
-            });
+            return !File.Exists(filePath)
+                   ? null
+                   : await Task.Run(() =>
+                   {
+                       using FileStream stream  = new FileStream(filePath, FileMode.Open);
+                       XmlSerializer serializer = new XmlSerializer(typeof(T));
+                       return serializer.Deserialize(stream) as T;
+                   });
         }
     }
 }

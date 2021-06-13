@@ -104,7 +104,7 @@ namespace SK.Utilities
 
                     process.Exited += delegate
                     {
-                        if (process == null)
+                        if (process is null)
                             return;
 
                         processExitedDelegate?.Invoke(new ProcessExitedData
@@ -162,7 +162,7 @@ namespace SK.Utilities
                 try
                 {
                     Process process = Process.GetProcessById(id);
-                    if (process == null)
+                    if (process is null)
                     {
                         _warningLogger?.Invoke("[OSUtils.ProcessLauncher.StopProcess] Process is null.");
                         return;

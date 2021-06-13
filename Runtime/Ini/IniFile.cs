@@ -12,26 +12,17 @@ namespace SK.Utilities
 
         public string Value;
 
-        public IniValue(object value)
-        {
-            if (value is IFormattable formattable)
-                Value = formattable.ToString(null, System.Globalization.CultureInfo.InvariantCulture);
-            else
-                Value = value?.ToString();
-        }
+        public IniValue(object value) => Value = value is IFormattable formattable
+                                               ? formattable.ToString(null, System.Globalization.CultureInfo.InvariantCulture)
+                                               : (value?.ToString());
 
         public IniValue(string value) => Value = value;
 
-        public bool ToBool(bool valueIfInvalid = false)
-        {
-            if (TryConvertBool(out bool res))
-                return res;
-            return valueIfInvalid;
-        }
+        public bool ToBool(bool valueIfInvalid = false) => TryConvertBool(out bool res) ? res : valueIfInvalid;
 
         public bool TryConvertBool(out bool result)
         {
-            if (Value == null)
+            if (Value is null)
             {
                 result = default;
                 return false;
@@ -52,16 +43,11 @@ namespace SK.Utilities
             return false;
         }
 
-        public int ToInt(int valueIfInvalid = 0)
-        {
-            if (TryConvertInt(out int res))
-                return res;
-            return valueIfInvalid;
-        }
+        public int ToInt(int valueIfInvalid = 0) => TryConvertInt(out int res) ? res : valueIfInvalid;
 
         public bool TryConvertInt(out int result)
         {
-            if (Value == null)
+            if (Value is null)
             {
                 result = default;
                 return false;
@@ -69,16 +55,11 @@ namespace SK.Utilities
             return TryParseInt(Value.Trim(), out result);
         }
 
-        public double ToDouble(double valueIfInvalid = 0)
-        {
-            if (TryConvertDouble(out double res))
-                return res;
-            return valueIfInvalid;
-        }
+        public double ToDouble(double valueIfInvalid = 0) => TryConvertDouble(out double res) ? res : valueIfInvalid;
 
         public bool TryConvertDouble(out double result)
         {
-            if (Value == null)
+            if (Value is null)
             {
                 result = default;
                 return false;
@@ -92,7 +73,7 @@ namespace SK.Utilities
 
         public string GetString(bool allowOuterQuotes, bool preserveWhitespace)
         {
-            if (Value == null)
+            if (Value is null)
                 return "";
 
             string trimmed = Value.Trim();
@@ -156,19 +137,13 @@ namespace SK.Utilities
         #region Ordered
         private List<string> _orderedKeys;
 
-        public int IndexOf(string key)
-        {
-            if (!Ordered)
-                throw new InvalidOperationException("Cannot call IndexOf(string) on IniSection: section was not ordered.");
-            return IndexOf(key, 0, _orderedKeys.Count);
-        }
+        public int IndexOf(string key) => !Ordered
+                                          ? throw new InvalidOperationException("Cannot call IndexOf(string) on IniSection: section was not ordered.")
+                                          : IndexOf(key, 0, _orderedKeys.Count);
 
-        public int IndexOf(string key, int index)
-        {
-            if (!Ordered)
-                throw new InvalidOperationException("Cannot call IndexOf(string, int) on IniSection: section was not ordered.");
-            return IndexOf(key, index, _orderedKeys.Count - index);
-        }
+        public int IndexOf(string key, int index) => !Ordered
+                                                     ? throw new InvalidOperationException("Cannot call IndexOf(string, int) on IniSection: section was not ordered.")
+                                                     : IndexOf(key, index, _orderedKeys.Count - index);
 
         public int IndexOf(string key, int index, int count)
         {
@@ -187,19 +162,13 @@ namespace SK.Utilities
             return -1;
         }
 
-        public int LastIndexOf(string key)
-        {
-            if (!Ordered)
-                throw new InvalidOperationException("Cannot call LastIndexOf(string) on IniSection: section was not ordered.");
-            return LastIndexOf(key, 0, _orderedKeys.Count);
-        }
+        public int LastIndexOf(string key) => !Ordered
+                                              ? throw new InvalidOperationException("Cannot call LastIndexOf(string) on IniSection: section was not ordered.")
+                                              : LastIndexOf(key, 0, _orderedKeys.Count);
 
-        public int LastIndexOf(string key, int index)
-        {
-            if (!Ordered)
-                throw new InvalidOperationException("Cannot call LastIndexOf(string, int) on IniSection: section was not ordered.");
-            return LastIndexOf(key, index, _orderedKeys.Count - index);
-        }
+        public int LastIndexOf(string key, int index) => !Ordered
+                                                         ? throw new InvalidOperationException("Cannot call LastIndexOf(string, int) on IniSection: section was not ordered.")
+                                                         : LastIndexOf(key, index, _orderedKeys.Count - index);
 
         public int LastIndexOf(string key, int index, int count)
         {
@@ -232,7 +201,7 @@ namespace SK.Utilities
         {
             if (!Ordered)
                 throw new InvalidOperationException("Cannot call InsertRange(int, IEnumerable<KeyValuePair<string, IniValue>>) on IniSection: section was not ordered.");
-            if (collection == null)
+            if (collection is null)
                 throw new ArgumentNullException("Value cannot be null." + Environment.NewLine + "Parameter name: collection");
             if (index < 0 || index > _orderedKeys.Count)
                 throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
@@ -301,14 +270,11 @@ namespace SK.Utilities
 
         public IniValue this[int index]
         {
-            get
-            {
-                if (!Ordered)
-                    throw new InvalidOperationException("Cannot index IniSection using integer key: section was not ordered.");
-                if (index < 0 || index >= _orderedKeys.Count)
-                    throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index");
-                return _values[_orderedKeys[index]];
-            }
+            get => !Ordered
+                   ? throw new InvalidOperationException("Cannot index IniSection using integer key: section was not ordered.")
+                   : index < 0 || index >= _orderedKeys.Count
+                   ? throw new IndexOutOfRangeException("Index must be within the bounds." + Environment.NewLine + "Parameter name: index")
+                   : _values[_orderedKeys[index]];
             set
             {
                 if (!Ordered)
@@ -322,7 +288,7 @@ namespace SK.Utilities
 
         public bool Ordered
         {
-            get => _orderedKeys != null;
+            get => !(_orderedKeys is null);
             set
             {
                 if (Ordered != value)
@@ -433,13 +399,7 @@ namespace SK.Utilities
             return ret;
         }
 
-        public IEnumerator<KeyValuePair<string, IniValue>> GetEnumerator()
-        {
-            if (Ordered)
-                return GetOrderedEnumerator();
-            else
-                return _values.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<string, IniValue>> GetEnumerator() => Ordered ? GetOrderedEnumerator() : _values.GetEnumerator();
 
         private IEnumerator<KeyValuePair<string, IniValue>> GetOrderedEnumerator()
         {
@@ -453,12 +413,7 @@ namespace SK.Utilities
 
         public IniValue this[string name]
         {
-            get
-            {
-                if (_values.TryGetValue(name, out IniValue val))
-                    return val;
-                return IniValue.Default;
-            }
+            get => _values.TryGetValue(name, out IniValue val) ? val : IniValue.Default;
             set
             {
                 if (Ordered && !_orderedKeys.Contains(name, Comparer))
@@ -536,7 +491,7 @@ namespace SK.Utilities
             {
                 string line = reader.ReadLine();
 
-                if (line != null)
+                if (!(line is null))
                 {
                     string trimStart = line.TrimStart();
 
@@ -552,7 +507,7 @@ namespace SK.Utilities
                                 _sections[sectionName] = section;
                             }
                         }
-                        else if (section != null && trimStart[0] != ';')
+                        else if (!(section is null) && trimStart[0] != ';')
                         {
                             if (LoadValue(line, out string key, out IniValue val))
                                 section[key] = val;

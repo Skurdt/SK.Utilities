@@ -28,7 +28,7 @@ namespace Arcade
     {
         public static void AddStringIfNotNullOrEmpty(this List<string> list, string toAdd)
         {
-            if (list == null)
+            if (list is null)
                 return;
 
             if (!string.IsNullOrEmpty(toAdd))
@@ -37,7 +37,7 @@ namespace Arcade
 
         public static void RotateLeft<T>(this List<T> list, int count = 1)
         {
-            if (list == null || list.Count < 1)
+            if (list is null || list.Count < 1)
                 return;
 
             for (int i = 0; i < count; ++i)
@@ -51,7 +51,7 @@ namespace Arcade
 
         public static void RotateRight<T>(this List<T> list, int count = 1)
         {
-            if (list == null || list.Count < 1)
+            if (list is null || list.Count < 1)
                 return;
 
             for (int i = 0; i < count; ++i)
